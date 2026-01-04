@@ -1,0 +1,5 @@
+{
+  "name": "Group Analytics Dashboard",
+  "description": "An AI SaaS Admin Console dashboard for tracking group usage statistics, credits, and member activity with a Material UI aesthetic.",
+  "requestFramePermissions": []
+}
