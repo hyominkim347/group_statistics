@@ -1,18 +1,9 @@
 import React from 'react';
 import { User, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
-
-interface MemberRanking {
-  id: string;
-  rank: number;
-  name: string;
-  email: string;
-  group: string;
-  requestCount: number;
-  credits: number;
-}
+import { Member } from '../types';
 
 interface MemberRankingTableProps {
-  data: MemberRanking[];
+  data: Member[];
 }
 
 const MemberRankingTable: React.FC<MemberRankingTableProps> = ({ data }) => {
@@ -38,6 +29,13 @@ const MemberRankingTable: React.FC<MemberRankingTableProps> = ({ data }) => {
     return <span className="text-gray-500 font-semibold text-sm block text-center w-8 mx-auto">{rank}</span>;
   };
 
+  const formatGroups = (groupIds: string[]) => {
+      if (!groupIds || groupIds.length === 0) return 'Unassigned';
+      // In a real app we'd map IDs to names, here we just show count if > 1 or ID
+      if (groupIds.length === 1) return groupIds[0].toUpperCase();
+      return `${groupIds.length} Groups`;
+  };
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       <div className="overflow-x-auto">
@@ -46,7 +44,7 @@ const MemberRankingTable: React.FC<MemberRankingTableProps> = ({ data }) => {
             <tr className="bg-gray-50/50 border-b border-gray-200">
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24 text-center">Rank</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Member</th>
-              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Group</th>
+              <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Groups</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Requests</th>
               <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Credits</th>
             </tr>
@@ -75,7 +73,7 @@ const MemberRankingTable: React.FC<MemberRankingTableProps> = ({ data }) => {
                 {/* Group Tag */}
                 <td className="px-6 py-4 whitespace-nowrap align-middle">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200 group-hover:border-gray-300 transition-colors">
-                    {row.group}
+                    {formatGroups(row.groupIds)}
                   </span>
                 </td>
 
@@ -86,7 +84,7 @@ const MemberRankingTable: React.FC<MemberRankingTableProps> = ({ data }) => {
                     </span>
                 </td>
 
-                {/* Credits (Usage) - Replaced Last Active */}
+                {/* Credits (Usage) */}
                 <td className="px-6 py-4 whitespace-nowrap text-right align-middle">
                   <span className="text-sm font-medium text-gray-900 tabular-nums">
                       {row.credits.toLocaleString()}
