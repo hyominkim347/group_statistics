@@ -6,6 +6,9 @@ export interface GroupStats {
   activeMembers: number;
   requests: number;
   credits: number;
+  avgCredits: number;
+  llmCalls: number; // New field: LLM Call Count
+  isOthers?: boolean;
 }
 
 export interface SummaryMetric {

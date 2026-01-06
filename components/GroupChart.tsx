@@ -13,74 +13,88 @@ import { GroupStats } from '../types';
 
 interface GroupChartProps {
   data: GroupStats[];
+  title: string;
+  dataKey: keyof GroupStats;
+  barColor?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label, dataKey }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload as GroupStats;
+    const value = payload[0].value;
+    
     return (
-      <div className="bg-gray-900 text-white p-3 rounded shadow-lg text-xs border-0">
-        <p className="font-bold mb-1 text-sm">{data.name}</p>
-        <p className="flex items-center space-x-2">
-            <span className="text-gray-300">Credits:</span>
-            <span className="font-mono">{data.credits.toLocaleString()}</span>
-        </p>
-        <p className="flex items-center space-x-2">
-            <span className="text-gray-300">Members:</span>
-            <span className="font-mono">{data.activeMembers} / {data.totalMembers}</span>
-        </p>
+      <div className="bg-gray-900 text-white p-3 rounded shadow-lg text-xs border-0 min-w-[150px]">
+        <p className="font-bold mb-2 text-sm border-b border-gray-700 pb-1">{data.name}</p>
+        <div className="space-y-1">
+            <p className="flex justify-between items-center">
+                <span className="text-gray-400 capitalize">{dataKey.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                <span className="font-mono font-bold text-yellow-400">
+                    {typeof value === 'number' ? value.toLocaleString() : value}
+                </span>
+            </p>
+            {dataKey !== 'activeMembers' && (
+                <p className="flex justify-between items-center">
+                    <span className="text-gray-400">Members:</span>
+                    <span className="font-mono">{data.activeMembers} / {data.totalMembers}</span>
+                </p>
+            )}
+             {dataKey === 'activeMembers' && (
+                <p className="flex justify-between items-center">
+                    <span className="text-gray-400">Total Size:</span>
+                    <span className="font-mono">{data.totalMembers}</span>
+                </p>
+            )}
+        </div>
       </div>
     );
   }
   return null;
 };
 
-const GroupChart: React.FC<GroupChartProps> = ({ data }) => {
-  // Take only top 5-7 for visual clarity in the chart
+const GroupChart: React.FC<GroupChartProps> = ({ data, title, dataKey, barColor = '#7420FF' }) => {
+  // Take only top 7 for visual clarity
   const chartData = data.slice(0, 7);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 h-[400px]">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-800">Top Groups by Usage (Credits)</h3>
-        {/* Legend */}
-        <div className="flex items-center space-x-4 text-xs text-gray-500">
-            <div className="flex items-center">
-                <span className="w-3 h-3 bg-primary rounded-sm mr-2"></span> Top Usage
-            </div>
-            <div className="flex items-center">
-                <span className="w-3 h-3 bg-gray-300 rounded-sm mr-2"></span> Others
-            </div>
-        </div>
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 h-[340px] flex flex-col">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-base font-bold text-gray-800">{title}</h3>
       </div>
+      <p className="text-xs text-gray-500 mb-4">Top 7 Groups</p>
 
-      <ResponsiveContainer width="100%" height="85%">
-        <BarChart
-          layout="vertical"
-          data={chartData}
-          margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
-          <XAxis type="number" hide />
-          <YAxis 
-            dataKey="name" 
-            type="category" 
-            width={120} 
-            tick={{ fontSize: 12, fill: '#666' }}
-            tickLine={false}
-            axisLine={false}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F5F5F5', opacity: 0.5 }} />
-          <Bar dataKey="credits" radius={[0, 4, 4, 0]} barSize={24}>
-            {chartData.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={index === 0 ? '#7420FF' : '#E0E0E0'} 
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+            layout="vertical"
+            data={chartData}
+            margin={{ top: 0, right: 30, left: 40, bottom: 0 }}
+            >
+            <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+            <XAxis type="number" hide />
+            <YAxis 
+                dataKey="name" 
+                type="category" 
+                width={110} 
+                tick={{ fontSize: 11, fill: '#666', fontWeight: 500 }}
+                tickLine={false}
+                axisLine={false}
+            />
+            <Tooltip 
+                content={<CustomTooltip dataKey={dataKey} />} 
+                cursor={{ fill: '#F5F5F5', opacity: 0.5 }} 
+            />
+            <Bar dataKey={dataKey} radius={[0, 4, 4, 0]} barSize={20}>
+                {chartData.map((entry, index) => (
+                <Cell 
+                    key={`cell-${index}`} 
+                    fill={index === 0 ? barColor : '#E5E7EB'} 
+                />
+                ))}
+            </Bar>
+            </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
